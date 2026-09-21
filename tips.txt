@@ -1,0 +1,10 @@
+- Ajouter des flags pour l'ASM au Makefile (? lesquelles)
+- Interdire toute fonction en dehors de :
+	◦ open, close, exit
+	◦ fpusts, fflush, lseek
+	◦ mmap, munmap, mprotect
+	◦ perror, strerror
+	◦ syscall
+	◦ the functions of the printf family
+Et celle dans la libft. (? trouver une sorte de Linter qui fait ca ? ou alors un pre-commit ?)
+! Pour le bonus on peut plus et: le bonus y'a le 32bit (assez trql apres nm je dirais, et l'ASM) et la compression (crucial pour plus tard ? mais pour les virus ?)
