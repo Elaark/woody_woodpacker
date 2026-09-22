@@ -34,11 +34,15 @@ OBJS			=	${SRCS:%.c=${OBJ_DIR}/%.o}
 DEPS			=	${SRCS:%.c=${DEP_DIR}/%.d}
 GET_DEP_PATH	=	${@:${OBJ_DIR}/%.o=${DEP_DIR}/.%d}
 
-OBJS_TEST		= ${UNIT_TEST:%.c=${TEST_DIR}/%.o}
+TEST			=	resources/sample.c
+TEST_NAME		=	sample
 
-CC				=	cc
+CC				=	clang
 CFLAG			=	-Wall -Werror -Wextra \
 					-MMD -MP -g3
+					
+X32_FLAGS		=	-m32
+X64_FLAGS		=	-m64
 
 MKDIR			=	@mkdir -vp
 RM				=	@rm -vrf
@@ -55,7 +59,7 @@ all: $(LIBFT_LIB) $(NAME)
 -include $(DEPS)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAG) $(TARGET_FLAGS) $^ -o $@ $(LIBFT_DIR)/$(LIBFT_LIB)
+	$(CC) $(CFLAG) $^ -o $@ $(LIBFT_DIR)/$(LIBFT_LIB)
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 	$(MKDIR) $(dir $@) $(dir $(GET_DEP_PATH))
@@ -63,6 +67,9 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 		-c $< -o $@ \
 		-MF $(DEP_DIR)/$(notdir $(basename $<)).d -MT $@
 
+basic:
+	$(CC) $(X64_FLAGS) $(TEST) -o $(TEST_NAME) 
+		
 init:
 	git submodule init
 	git submodule update
