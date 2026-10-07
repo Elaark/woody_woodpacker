@@ -15,9 +15,11 @@ DEP_DIR			=	${BUILD_DIR}/dep
 ######  SOURCES  ######
 #######################
 
-SRCS 			=	main.c 					
+SRCS 			=	main.c		\
+					errors.c						
 
-HEADERS			=	main.h 					
+HEADERS			=	main.h 		\
+					errors.h			
 
 ###########################
 ######  COMPILATION  ######
@@ -47,7 +49,7 @@ X64_FLAGS		=	-m64
 MKDIR			=	@mkdir -vp
 RM				=	@rm -vrf
 
-NAME			= 	ft_nm
+NAME			= 	woody
 LIBFT_LIB		=	libft.a
 
 #####################
