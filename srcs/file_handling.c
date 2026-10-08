@@ -65,6 +65,32 @@ void    check_file_eident(t_file *data)
   data->endian = *endian == ELFDATA2LSB ? LITTLE : BIG;
 }
 
+void  check_file_elf_header_x64(t_file *data)
+{
+  const Elf64_Ehdr  *header;
+
+  if ((unsigned long)data->loaded_size < sizeof(Elf64_Ehdr))
+  {
+    close_file(data);
+    personnal_exit(FILE_TOO_SHORT, data->filename);
+  }
+
+  header = (Elf64_Ehdr *)data->loaded_file; 
+  if (header->e_type != ET_EXEC)
+  {
+    close_file(data);
+    personnal_exit(NOT_AN_EXEC_FILE, data->filename);
+  }
+
+  if (header->e_machine != EM_386 && header->e_machine != EM_X86_64)
+  {
+    close_file(data);
+    personnal_exit(UNSUPPORTED_CPU_ARCH, data->filename);
+  }
+
+  
+}
+
 void  close_file(t_file *data)
 {
   if (data->fd != -1)

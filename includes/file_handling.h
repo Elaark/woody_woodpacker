@@ -29,7 +29,8 @@ typedef struct s_file_data {
 } t_file;
 
 void    open_file(const char *file_name, t_file *data);
-void    check_file(t_file *data);
+void    check_file_eident(t_file *data);
+void    check_file_elf_header_x64(t_file *data);
 void    close_file(t_file *data);
 
 #endif

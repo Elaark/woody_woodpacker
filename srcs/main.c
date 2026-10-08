@@ -14,7 +14,13 @@ int  main(int ac, char **av)
 
   ft_bzero(&file, sizeof(t_file));
   open_file(av[1], &file);
-  check_file(&file);
+  check_file_eident(&file);
+  if (file.arch == X32)                 // will delete that later
+  {
+    close_file(&file);
+    personnal_exit(WRONG_ARCH, av[1]);
+  }
+  check_file_elf_header_x64(&file);
   printf("File is correct\n");
   close_file(&file);
 }
