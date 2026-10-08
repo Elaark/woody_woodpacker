@@ -15,11 +15,13 @@ DEP_DIR			=	${BUILD_DIR}/dep
 ######  SOURCES  ######
 #######################
 
-SRCS 			=	main.c		\
-					errors.c						
-
-HEADERS			=	main.h 		\
-					errors.h			
+SRCS 			=	main.c				\
+					errors.c			\
+					file_handling.c
+					
+HEADERS			=	main.h 				\
+					errors.h			\
+					file_handling.h
 
 ###########################
 ######  COMPILATION  ######

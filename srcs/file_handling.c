@@ -1,3 +1,4 @@
+#include <elf.h>
 #include <fcntl.h> // open
 #include <stdio.h> // open/close
 #include <sys/mman.h> // mmap
@@ -6,7 +7,7 @@
 #include "errors.h"
 #include "file_handling.h"
 
-void  open_file(const char *file_name, t_exec *data)
+void  open_file(const char *file_name, t_file *data)
 {
   data->fd = open(file_name, O_RDWR);
   if (data->fd == -1)
@@ -29,13 +30,42 @@ void  open_file(const char *file_name, t_exec *data)
   }
 }
 
-void    check_file(t_exec *data)
+void    check_file_eident(t_file *data)
 // check if file is correctly a x86 + 64 bits
 {
+  const char  *arch;
+  const char  *endian;
+
+  if (data->loaded_size < EI_NIDENT)
+  {
+    close_file(data);
+    personnal_exit(NOT_A_ELF_FILE, data->filename);
+  }
   
+  if (*((int *)data->loaded_file) != *(int *)ELFMAG)
+  {
+    close_file(data);
+    personnal_exit(NOT_A_ELF_FILE, data->filename);
+  }
+  
+  arch = &((char *)data->loaded_file)[EI_CLASS];
+  if (*arch == ELFCLASSNONE)
+  {
+    close_file(data);
+    personnal_exit(WRONG_ARCH, data->filename);
+  }
+  data->arch = *arch == ELFCLASS32 ? X32 : X64;
+
+  endian = &((char *)data->loaded_file)[EI_DATA];
+  if (*arch == ELFDATANONE)
+  {
+    close_file(data);
+    personnal_exit(WRONG_DATA_ENCODING, data->filename);
+  }
+  data->endian = *endian == ELFDATA2LSB ? LITTLE : BIG;
 }
 
-void  close_file(t_exec *data)
+void  close_file(t_file *data)
 {
   if (data->fd != -1)
     close(data->fd);
