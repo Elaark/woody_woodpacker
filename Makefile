@@ -17,11 +17,13 @@ DEP_DIR			=	${BUILD_DIR}/dep
 
 SRCS 			=	main.c				\
 					errors.c			\
-					file_handling.c
+					file_handling.c		\
+					data_controller.c
 					
 HEADERS			=	main.h 				\
 					errors.h			\
-					file_handling.h
+					file_handling.h		\
+					data_controller.h
 
 ###########################
 ######  COMPILATION  ######

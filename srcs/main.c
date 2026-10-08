@@ -1,3 +1,4 @@
+#include "data_controller.h"
 #include "errors.h"
 #include "file_handling.h"
 #include "libft.h"
@@ -21,6 +22,9 @@ int  main(int ac, char **av)
     personnal_exit(WRONG_ARCH, av[1]);
   }
   check_file_elf_header_x64(&file);
-  printf("File is correct\n");
+  printf("File is correct: finding data 'str'\n");
+  identify_data_section(&file, TEST_CONTROLLER);
+  identify_segments(&file, TEST_CONTROLLER);
+  // modify_var(&file, TEST_CONTROLLER);
   close_file(&file);
 }
