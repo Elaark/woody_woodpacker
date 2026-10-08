@@ -7,6 +7,7 @@
 // close file
 
 # include <stddef.h>
+# include <stdint.h>
 # include <stdio.h>
 
 typedef enum {
@@ -23,9 +24,12 @@ typedef struct s_file_data {
   int          fd;
   const char   *filename;
   void         *loaded_file;
-  off_t        loaded_size; // important for the stub !
+  off_t        loaded_size;      // important for the stub !
   endian_type  endian;
-  arch_type    arch;           // might pack later x32 bits
+  arch_type    arch;             // might pack later x32 bits
+  off_t        sg_table_offset;  // sg = segment aka program
+  uint16_t     sg_table_unit_size;
+  uint16_t     sg_table_total_entry;
 } t_file;
 
 void    open_file(const char *file_name, t_file *data);

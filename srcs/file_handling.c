@@ -88,7 +88,15 @@ void  check_file_elf_header_x64(t_file *data)
     personnal_exit(UNSUPPORTED_CPU_ARCH, data->filename);
   }
 
-  
+  data->sg_table_offset = header->e_phoff;
+  data->sg_table_total_entry = header->e_phnum;
+  data->sg_table_unit_size = header->e_phentsize;
+  if (data->sg_table_offset + data->sg_table_unit_size * data->sg_table_total_entry >= data->loaded_size)
+  {
+    close_file(data);
+    personnal_exit(FILE_TOO_SHORT, data->filename);
+  }            // check passed: can access safely program/segment table
+
 }
 
 void  close_file(t_file *data)

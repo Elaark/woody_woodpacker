@@ -6,38 +6,36 @@
 
 int  code_from_error(enum exit_code e)
 {
-  if (e == ALLOC_ERROR)
-    return (12);
+  if (e == ERRNO)
+    return (errno);
+  // else if (e == FILE_TOO_SHORT)
+  //   return (1);
+  // else if (e == UNWRITTABLE)
+  //   return (13);
+  // else if (e == CORRUPT_ELF_FILE)
+  //   return (8);
   else if (e == TOO_MANY_ARGS)
     return (7);
-  else if (e == FILE_NOT_FOUND)
-    return (2);
-  else if (e == UNWRITTABLE)
-    return (13);
-  else if (e == CORRUPT_ELF_FILE)
-    return (8);
-  else if (e == ERRNO)
-    return (errno);
   else
     return (1);
 }
 
 char  *msg_from_error(enum exit_code e)
 {
-  if (e == ALLOC_ERROR)
-    return ("Cannot allocate memory");
+  if (e == ERRNO)
+    return (strerror(errno));
+  else if (e == FILE_TOO_SHORT)
+    return ("File too short. Headers not completed");
+  else if (e == NOT_A_ELF_FILE)
+    return ("Not a ELF file. Magic number not found");
+  else if (e == NOT_AN_EXEC_FILE)
+    return ("ELF file cannot be executed");
   else if (e == TOO_MANY_ARGS)
     return ("Argument list too long");
-  else if (e == FILE_NOT_FOUND)
-    return ("No such file or directory");
-  else if (e == UNWRITTABLE)
-    return ("Permission denied");
-  else if (e == CORRUPT_ELF_FILE)
-    return ("Exec format error"); // meh
-  else if (e == ARCH_NOT_SUPPORTED)
-    return ("File architecture not supported. x86_64 only");
-  else if (e == ERRNO)
-    return (strerror(errno));
+  else if (e == UNSUPPORTED_CPU_ARCH)
+    return ("Arch not supported. Only x86 available"); // meh
+  else if (e == WRONG_ARCH || e == WRONG_DATA_ENCODING)
+    return ("Error in arch/endian encoding");
   else
     return (0);
 }
