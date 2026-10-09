@@ -3,8 +3,11 @@
 
 enum exit_code {
   CORRECT,
+  CORRUPTED_STRTAB_IDX,   // used
   ERRNO,                  // used
   FILE_TOO_SHORT,         // used
+  KEY_SYMBOL_NOT_FOUND,   // used
+  PAYLOAD_SIZE_NOT_FOUND, // NOT USED
   NOT_A_ELF_FILE,         // used
   NOT_AN_EXEC_FILE,       // used
   TOO_MANY_ARGS,          // used

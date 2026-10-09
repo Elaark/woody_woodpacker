@@ -6,6 +6,7 @@
 // check for bound ?
 // close file
 
+# include <limits.h>
 # include <stddef.h>
 # include <stdint.h>
 # include <stdio.h>
@@ -27,6 +28,7 @@ typedef struct s_file_data {
   off_t        loaded_size;      // important for the stub !
   endian_type  endian;
   arch_type    arch;             // might pack later x32 bits
+
   off_t        sg_table_offset;  // sg = segment aka program
   uint16_t     sg_table_unit_size;
   uint16_t     sg_table_total_entry;
@@ -34,6 +36,8 @@ typedef struct s_file_data {
   off_t        sc_table_offset;
   uint16_t     sc_table_unit_size;
   uint16_t     sc_table_total_entry;
+
+  uint16_t     section_table_index;
   // const void   **data_segment_array;  
 } t_file;
 
@@ -41,5 +45,9 @@ void    open_file(const char *file_name, t_file *data);
 void    check_file_eident(t_file *data);
 void    check_file_elf_header_x64(t_file *data);
 void    close_file(t_file *data);
+
+uint16_t   get_strtab_idx(t_file *data);
+void       verify_exec_and_machine(t_file *data);
+void       swap_data_info(t_file *data);
 
 #endif

@@ -1,9 +1,11 @@
 #include <elf.h>
 #include <fcntl.h> // open
+#include <stdint.h>
 #include <stdio.h> // open/close
 #include <sys/mman.h> // mmap
 #include <unistd.h> // lseek
 
+#include "endian_swap.h"
 #include "errors.h"
 #include "file_handling.h"
 
@@ -75,19 +77,8 @@ void  check_file_elf_header_x64(t_file *data)
     personnal_exit(FILE_TOO_SHORT, data->filename);
   }
 
-  header = (Elf64_Ehdr *)data->loaded_file; 
-  if (header->e_type != ET_EXEC)
-  {
-    close_file(data);
-    personnal_exit(NOT_AN_EXEC_FILE, data->filename);
-  }
-
-  if (header->e_machine != EM_386 && header->e_machine != EM_X86_64)
-  {
-    close_file(data);
-    personnal_exit(UNSUPPORTED_CPU_ARCH, data->filename);
-  }
-
+  verify_exec_and_machine(data);
+  header = (Elf64_Ehdr *)data->loaded_file;
   data->sg_table_offset = header->e_phoff;
   data->sg_table_total_entry = header->e_phnum;
   data->sg_table_unit_size = header->e_phentsize;
@@ -105,6 +96,10 @@ void  check_file_elf_header_x64(t_file *data)
     close_file(data);
     personnal_exit(FILE_TOO_SHORT, data->filename);
   }
+  if (data->endian == BIG)
+    swap_data_info(data);
+
+  data->section_table_index = get_strtab_idx(data);
 }
 
 void  close_file(t_file *data)
@@ -116,4 +111,60 @@ void  close_file(t_file *data)
       data->loaded_size != 0)
     munmap(data->loaded_file, data->loaded_size);
   
+}
+
+// maybe this is is useless: it is supposed to be the section header table index of the entry associated with the section name string table, not the symbol string table...
+uint16_t  get_strtab_idx(t_file *data)
+{
+  uint16_t  idx;
+
+  idx = ((Elf64_Ehdr *)data->loaded_file)->e_shstrndx;
+  if (idx < SHN_LORESERVE)
+    return (data->endian == LITTLE ? idx : SWAP_U16(idx));
+
+  if (idx == SHN_XINDEX)
+  {
+    close_file(data);
+    personnal_exit(CORRUPTED_STRTAB_IDX, data->filename);
+  }
+  idx = (uint16_t)((Elf64_Shdr *)(data->loaded_file + data->sc_table_offset))[0].sh_link;
+  return (data->endian == LITTLE ? idx : SWAP_U16(idx));
+}
+
+void  verify_exec_and_machine(t_file *data)
+{
+  Elf64_Ehdr *header;
+  uint16_t   e_type;
+  uint16_t   e_machine;
+  
+  header = (Elf64_Ehdr *)data->loaded_file;
+  e_type = header->e_type;
+  e_machine = header->e_machine;
+  if (data->endian == BIG)
+  {
+    e_type = SWAP_U16(e_type);
+    e_machine = SWAP_U16(e_machine);
+  }
+  if (e_type != ET_EXEC)
+  {
+      close_file(data);
+      personnal_exit(NOT_AN_EXEC_FILE, data->filename);
+  }
+  if (e_machine != EM_386 && e_machine != EM_X86_64)
+  {
+      close_file(data);
+      personnal_exit(UNSUPPORTED_CPU_ARCH, data->filename);
+  }
+}
+
+// if we have an big-endian file
+void  swap_data_info(t_file *data)
+{
+  data->sg_table_offset = SWAP_U64(data->sg_table_offset);
+  data->sg_table_unit_size = SWAP_U16(data->sg_table_unit_size);
+  data->sg_table_total_entry = SWAP_U16(data->sg_table_total_entry);
+
+  data->sc_table_offset = SWAP_U64(data->sc_table_offset);
+  data->sc_table_unit_size = SWAP_U16(data->sc_table_unit_size);
+  data->sc_table_total_entry = SWAP_U16(data->sc_table_total_entry);
 }

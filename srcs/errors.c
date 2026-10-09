@@ -24,6 +24,8 @@ char  *msg_from_error(enum exit_code e)
 {
   if (e == ERRNO)
     return (strerror(errno));
+  else if (e == CORRUPTED_STRTAB_IDX)
+    return ("Cannot recover section name string table index");
   else if (e == FILE_TOO_SHORT)
     return ("File too short. Headers not completed");
   else if (e == NOT_A_ELF_FILE)
@@ -34,6 +36,8 @@ char  *msg_from_error(enum exit_code e)
     return ("Argument list too long");
   else if (e == UNSUPPORTED_CPU_ARCH)
     return ("Arch not supported. Only x86 available"); // meh
+  else if (e == KEY_SYMBOL_NOT_FOUND)
+    return ("Cannot replace key variable, symbol not found");
   else if (e == WRONG_ARCH || e == WRONG_DATA_ENCODING)
     return ("Error in arch/endian encoding");
   else
