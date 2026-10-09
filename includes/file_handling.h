@@ -36,9 +36,6 @@ typedef struct s_file_data {
   off_t        sc_table_offset;
   uint16_t     sc_table_unit_size;
   uint16_t     sc_table_total_entry;
-
-  uint16_t     section_table_index;
-  // const void   **data_segment_array;  
 } t_file;
 
 void       open_file(const char *file_name, t_file *data);

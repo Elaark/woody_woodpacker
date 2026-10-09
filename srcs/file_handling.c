@@ -98,8 +98,6 @@ void  check_file_elf_header_x64(t_file *data)
   }
   if (data->endian == BIG)
     swap_data_info(data);
-
-  data->section_table_index = get_strtab_idx(data);
 }
 
 void  close_file(const t_file *data)
