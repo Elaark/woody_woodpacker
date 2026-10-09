@@ -37,7 +37,7 @@ char  *msg_from_error(enum exit_code e)
   else if (e == WRONG_ARCH || e == WRONG_DATA_ENCODING)
     return ("Error in arch/endian encoding");
   else
-    return (0);
+    return ("");
 }
 
 int  personnal_exit(enum exit_code e, const char *param)
@@ -51,7 +51,7 @@ int  personnal_exit(enum exit_code e, const char *param)
                    ft_strlen(msg_from_error(e)) +
                    1, sizeof(char));
   if (name == NULL)
-    return (code_from_error(e));
+    return (1);
   sprintf(name, "woody: %s: %s\n", param, msg_from_error(e));
   write(2, name, ft_strlen(name));
   free(name);

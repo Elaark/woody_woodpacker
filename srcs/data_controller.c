@@ -45,8 +45,10 @@ const void  *identify_segments(const t_file *file, const char *var_name)
 int  search_data_section(const void *section_header, const t_file *file, const char *var_name)
 {
   const Elf64_Shdr  *section_hdr;
+  const char        *symbol_name;
 
   section_hdr = (Elf64_Shdr *)section_header;
+  symbol_name = get_string_table(file)[section_header->
   if (write(1, file->loaded_file + section_hdr->sh_offset, section_hdr->sh_size) == 0)
     write(2, "\nNo size given\n", ft_strlen("\nNo size given\n"));
   (void)var_name;
