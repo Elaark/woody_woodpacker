@@ -24,8 +24,12 @@ char  *msg_from_error(enum exit_code e)
 {
   if (e == ERRNO)
     return (strerror(errno));
-  else if (e == CORRUPTED_STRTAB_IDX)
-    return ("Cannot recover section name string table index");
+  else if (e == CORRUPTED_STRTAB_HEADER)
+    return ("Index of .strtab header is incoherent and leads ouf of file");
+  else if (e == CORRUPTED_STRTAB_OFFSET)
+    return ("Offset of .strtab is incoherent and leads ouf of file");
+  else if (e == CORRUPTED_SYMBOL_STRTAB_IDX)
+    return ("Index inside .strtab is incoherent and leads ouf of file");
   else if (e == FILE_TOO_SHORT)
     return ("File too short. Headers not completed");
   else if (e == NOT_A_ELF_FILE)

@@ -3,7 +3,9 @@
 
 enum exit_code {
   CORRECT,
-  CORRUPTED_STRTAB_IDX,   // used
+  CORRUPTED_STRTAB_HEADER,   // used
+  CORRUPTED_STRTAB_OFFSET,  // used
+  CORRUPTED_SYMBOL_STRTAB_IDX,  //used
   ERRNO,                  // used
   FILE_TOO_SHORT,         // used
   KEY_SYMBOL_NOT_FOUND,   // used

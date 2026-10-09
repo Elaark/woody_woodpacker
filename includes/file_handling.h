@@ -41,12 +41,11 @@ typedef struct s_file_data {
   // const void   **data_segment_array;  
 } t_file;
 
-void    open_file(const char *file_name, t_file *data);
-void    check_file_eident(t_file *data);
-void    check_file_elf_header_x64(t_file *data);
-void    close_file(t_file *data);
+void       open_file(const char *file_name, t_file *data);
+void       check_file_eident(t_file *data);
+void       check_file_elf_header_x64(t_file *data);
+void       close_file(const t_file *data);
 
-uint16_t   get_strtab_idx(t_file *data);
 void       verify_exec_and_machine(t_file *data);
 void       swap_data_info(t_file *data);
 

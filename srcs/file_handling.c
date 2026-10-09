@@ -102,33 +102,14 @@ void  check_file_elf_header_x64(t_file *data)
   data->section_table_index = get_strtab_idx(data);
 }
 
-void  close_file(t_file *data)
+void  close_file(const t_file *data)
 {
   if (data->fd != -1)
     close(data->fd);
   if ((data->loaded_file != NULL ||
        data->loaded_file == MAP_FAILED) &&
       data->loaded_size != 0)
-    munmap(data->loaded_file, data->loaded_size);
-  
-}
-
-// maybe this is is useless: it is supposed to be the section header table index of the entry associated with the section name string table, not the symbol string table...
-uint16_t  get_strtab_idx(t_file *data)
-{
-  uint16_t  idx;
-
-  idx = ((Elf64_Ehdr *)data->loaded_file)->e_shstrndx;
-  if (idx < SHN_LORESERVE)
-    return (data->endian == LITTLE ? idx : SWAP_U16(idx));
-
-  if (idx == SHN_XINDEX)
-  {
-    close_file(data);
-    personnal_exit(CORRUPTED_STRTAB_IDX, data->filename);
-  }
-  idx = (uint16_t)((Elf64_Shdr *)(data->loaded_file + data->sc_table_offset))[0].sh_link;
-  return (data->endian == LITTLE ? idx : SWAP_U16(idx));
+    munmap(data->loaded_file, data->loaded_size);  
 }
 
 void  verify_exec_and_machine(t_file *data)
