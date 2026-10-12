@@ -3,7 +3,7 @@
 
 # include "file_handling.h"
 
-void  replace_data(t_file *file, const char *var_name, const char *new_value);
+enum exit_code  replace_data(t_file *file, const char *var_name, const char *new_value);
 
 #endif
 

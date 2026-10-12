@@ -7,7 +7,6 @@
 #include "file_handling.h"
 #include "libft.h"
 #include "section_slasher.h"
-#include "segment_slasher.h"
 
 const Elf64_Shdr  *get_strtab_header(const t_file *file, const Elf64_Shdr *header)
 {
@@ -36,12 +35,12 @@ const char  *get_strtab(const t_file *file, const Elf64_Shdr *strtab_header)
   return (file->loaded_file + sh_offset);
 }
 
-const Elf64_Sym  *identify_symbol_associated(const t_file *file, const char *var_name)
+enum exit_code  identify_symbol_associated(const t_file *file, const char *var_name, const Elf64_Sym **symbol)
 {
-  uint16_t    idx;
-  uint32_t    sh_type;
-  Elf64_Shdr  *section_header;
-  const Elf64_Sym   *symbol;
+  enum exit_code    e;
+  uint16_t          idx;
+  uint32_t          sh_type;
+  Elf64_Shdr        *section_header;
 
   section_header = file->loaded_file + file->sc_table_offset;
   idx = 0;
@@ -52,54 +51,51 @@ const Elf64_Sym  *identify_symbol_associated(const t_file *file, const char *var
       sh_type = SWAP_U32(sh_type);
     if (sh_type == SHT_SYMTAB)
     {
-      symbol = compare_symbol(&section_header[idx], file, var_name);
-      if (symbol != NULL)
-        return (symbol); 
+      e = compare_symbol(&section_header[idx], file, var_name, symbol);
+      if (e != CORRECT)
+        return (e); 
+      if (*symbol != NULL)
+        return (CORRECT);
     }
     ++idx;
   }
-  return (NULL);
+  return (KEY_SYMBOL_NOT_FOUND);
 }
 
-const Elf64_Sym  *compare_symbol(const Elf64_Shdr *section, const t_file *file, const char *var_name)
+enum exit_code  compare_symbol(const Elf64_Shdr *section, const t_file *file, const char *var_name, const Elf64_Sym **symbol)
 {
   const Elf64_Shdr  *strtab_header;
   const char        *strtab;
   uint64_t          strtab_size;
   uint16_t          section_size;
   uint64_t          section_offset;
-  const Elf64_Sym   *symbol;
   uint32_t          st_name;
 
   strtab_header = get_strtab_header(file, section);
   if (strtab_header == NULL)
-  {
-    close_file(file);
-    personnal_exit(CORRUPTED_STRTAB_HEADER, file->filename);
-  }
+    return (CORRUPTED_STRTAB_HEADER);
   strtab = get_strtab(file, strtab_header);
   if (strtab == NULL)
-  {
-    close_file(file);
-    personnal_exit(CORRUPTED_STRTAB_OFFSET, file->filename);
-  }
+    return (CORRUPTED_STRTAB_OFFSET);
   strtab_size = file->endian == LITTLE ? strtab_header->sh_size : SWAP_U64(strtab_header->sh_size);
   section_size = file->endian == LITTLE ? section->sh_size : SWAP_U64(section->sh_size);
   section_offset = file->endian == LITTLE ? section->sh_offset : SWAP_U64(section->sh_offset);
-  symbol = file->loaded_file + section_offset;
+
+  *symbol = file->loaded_file + section_offset;
 
   for (uint16_t idx = 1; idx * sizeof(Elf64_Sym) < section_size; ++idx)
   {
-    st_name = file->endian == LITTLE ? symbol[idx].st_name : SWAP_U32(symbol[idx].st_name);
+    st_name = file->endian == LITTLE ? (*symbol)[idx].st_name : SWAP_U32((*symbol[idx]).st_name);
     if (st_name == 0)
       continue ;
     if (st_name >= strtab_size)
-    {
-      close_file(file);
-      personnal_exit(CORRUPTED_SYMBOL_STRTAB_IDX, file->filename);
-    }
+      return (CORRUPTED_SYMBOL_STRTAB_IDX);
     if (ft_strncmp(var_name, &strtab[st_name], ft_strlen(var_name) + 1) == 0)
-      return (&symbol[idx]);
+    {
+      *symbol = &((*symbol)[idx]);
+      return (CORRECT);
+    }
   }
-  return (NULL);
+  *symbol = NULL;
+  return (CORRECT);
 }

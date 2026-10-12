@@ -37,7 +37,7 @@ char  *msg_from_error(enum exit_code e)
   else if (e == FILE_TOO_SHORT)
     return ("File too short. Headers not completed");
   else if (e == INCORRECT_NB_OF_ARGS)
-    return ("Wrong format. Use -- woody <bin name> <variable name> <new value>");
+    return ("Wrong format. Use -- woody <ELF bin name>");
   else if (e == KEY_SYMBOL_NOT_FOUND)
     return ("Cannot replace key variable, symbol not found");
   else if (e == NOT_A_ELF_FILE)

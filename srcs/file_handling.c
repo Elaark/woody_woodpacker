@@ -9,95 +9,73 @@
 #include "errors.h"
 #include "file_handling.h"
 
-void  open_file(const char *file_name, t_file *data)
+enum exit_code  open_file(const char *file_name, t_file *data)
 {
   data->fd = open(file_name, O_RDWR);
   if (data->fd == -1)
-  {
-    close_file(data);
-    personnal_exit(ERRNO, file_name);
-  }
+    return (ERRNO);
   data->loaded_size = lseek(data->fd, 0, SEEK_END); // lseek can move th offset to the end of the file
   if (data->loaded_size == (off_t)-1)
-  {
-    close_file(data);
-    personnal_exit(ERRNO, file_name);
-  }
+    return (ERRNO);
   lseek(data->fd, 0, SEEK_SET); // Need to make sure to put the offset back to the beginning of the file
   data->loaded_file = mmap(NULL, data->loaded_size, PROT_READ | PROT_WRITE, MAP_SHARED, data->fd, 0);
   if (data->loaded_file == MAP_FAILED)
-  {
-    close_file(data);
-    personnal_exit(ERRNO, file_name);
-  }
+    return (ERRNO);
+  return (CORRECT);
 }
 
-void    check_file_eident(t_file *data)
+enum exit_code    check_file_eident(t_file *data)
 // check if file is correctly a x86 + 64 bits
 {
   const char  *arch;
   const char  *endian;
 
   if (data->loaded_size < EI_NIDENT)
-  {
-    close_file(data);
-    personnal_exit(NOT_A_ELF_FILE, data->filename);
-  }
+    return (NOT_A_ELF_FILE);
   
   if (*((int *)data->loaded_file) != *(int *)ELFMAG)
-  {
-    close_file(data);
-    personnal_exit(NOT_A_ELF_FILE, data->filename);
-  }
+    return (NOT_A_ELF_FILE);
   
   arch = &((char *)data->loaded_file)[EI_CLASS];
   if (*arch == ELFCLASSNONE)
-  {
-    close_file(data);
-    personnal_exit(WRONG_ARCH, data->filename);
-  }
+    return (WRONG_ARCH);
   data->arch = *arch == ELFCLASS32 ? X32 : X64;
 
   endian = &((char *)data->loaded_file)[EI_DATA];
   if (*arch == ELFDATANONE)
-  {
-    close_file(data);
-    personnal_exit(WRONG_DATA_ENCODING, data->filename);
-  }
+    return (WRONG_DATA_ENCODING);
   data->endian = *endian == ELFDATA2LSB ? LITTLE : BIG;
+  return (CORRECT);
 }
 
-void  check_file_elf_header_x64(t_file *data)
+enum exit_code  check_file_elf_header_x64(t_file *data)
 {
   const Elf64_Ehdr  *header;
+  enum exit_code    e;
 
   if ((unsigned long)data->loaded_size < sizeof(Elf64_Ehdr))
-  {
-    close_file(data);
-    personnal_exit(FILE_TOO_SHORT, data->filename);
-  }
+    return (FILE_TOO_SHORT);
 
-  verify_exec_and_machine(data);
+  e = verify_exec_and_machine(data);
+  if (e != CORRECT)
+    return (e);
   header = (Elf64_Ehdr *)data->loaded_file;
   data->sg_table_offset = header->e_phoff;
   data->sg_table_total_entry = header->e_phnum;
   data->sg_table_unit_size = header->e_phentsize;
-  if (data->sg_table_offset + data->sg_table_unit_size * data->sg_table_total_entry >= data->loaded_size)
-  {
-    close_file(data);
-    personnal_exit(FILE_TOO_SHORT, data->filename);
-  }            // check passed: can access safely program/segment table
 
   data->sc_table_offset = header->e_shoff;
   data->sc_table_unit_size = header->e_shentsize;
   data->sc_table_total_entry = header->e_shnum;
-  if (data->sc_table_offset + data->sc_table_unit_size * data->sg_table_total_entry >= data->loaded_size)
-  {
-    close_file(data);
-    personnal_exit(FILE_TOO_SHORT, data->filename);
-  }
+
   if (data->endian == BIG)
     swap_data_info(data);
+  
+  if (data->sg_table_offset + data->sg_table_unit_size * data->sg_table_total_entry >= data->loaded_size)
+    return (FILE_TOO_SHORT); // check passed: can access safely program/segment table
+  if (data->sc_table_offset + data->sc_table_unit_size * data->sg_table_total_entry >= data->loaded_size)
+    return (FILE_TOO_SHORT);
+  return (CORRECT);
 }
 
 void  close_file(const t_file *data)
@@ -110,7 +88,7 @@ void  close_file(const t_file *data)
     munmap(data->loaded_file, data->loaded_size);  
 }
 
-void  verify_exec_and_machine(t_file *data)
+enum exit_code  verify_exec_and_machine(t_file *data)
 {
   Elf64_Ehdr *header;
   uint16_t   e_type;
@@ -125,15 +103,10 @@ void  verify_exec_and_machine(t_file *data)
     e_machine = SWAP_U16(e_machine);
   }
   if (e_type != ET_EXEC)
-  {
-      close_file(data);
-      personnal_exit(NOT_AN_EXEC_FILE, data->filename);
-  }
+    return (NOT_AN_EXEC_FILE);
   if (e_machine != EM_386 && e_machine != EM_X86_64)
-  {
-      close_file(data);
-      personnal_exit(UNSUPPORTED_CPU_ARCH, data->filename);
-  }
+    return (UNSUPPORTED_CPU_ARCH);
+  return (CORRECT);
 }
 
 // if we have an big-endian file
