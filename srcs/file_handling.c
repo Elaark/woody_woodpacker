@@ -24,7 +24,7 @@ void  open_file(const char *file_name, t_file *data)
     personnal_exit(ERRNO, file_name);
   }
   lseek(data->fd, 0, SEEK_SET); // Need to make sure to put the offset back to the beginning of the file
-  data->loaded_file = mmap(NULL, data->loaded_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, data->fd, 0);
+  data->loaded_file = mmap(NULL, data->loaded_size, PROT_READ | PROT_WRITE, MAP_SHARED, data->fd, 0);
   if (data->loaded_file == MAP_FAILED)
   {
     close_file(data);

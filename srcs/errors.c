@@ -36,16 +36,20 @@ char  *msg_from_error(enum exit_code e)
     return ("Error in segment header value. Corruption possible");
   else if (e == FILE_TOO_SHORT)
     return ("File too short. Headers not completed");
+  else if (e == INCORRECT_NB_OF_ARGS)
+    return ("Wrong format. Use -- woody <bin name> <variable name> <new value>");
+  else if (e == KEY_SYMBOL_NOT_FOUND)
+    return ("Cannot replace key variable, symbol not found");
   else if (e == NOT_A_ELF_FILE)
     return ("Not a ELF file. Magic number not found");
   else if (e == NOT_AN_EXEC_FILE)
     return ("ELF file cannot be executed");
   else if (e == TOO_MANY_ARGS)
     return ("Argument list too long");
+  else if (e == UNFIT_REPLACING_VALUE)
+    return ("New value size does not fit old value size inside memory");
   else if (e == UNSUPPORTED_CPU_ARCH)
     return ("Arch not supported. Only x86 available"); // meh
-  else if (e == KEY_SYMBOL_NOT_FOUND)
-    return ("Cannot replace key variable, symbol not found");
   else if (e == WRONG_ARCH || e == WRONG_DATA_ENCODING)
     return ("Error in arch/endian encoding");
   else

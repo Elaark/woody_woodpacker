@@ -36,34 +36,6 @@ const char  *get_strtab(const t_file *file, const Elf64_Shdr *strtab_header)
   return (file->loaded_file + sh_offset);
 }
 
-void       replace_data(t_file *file)
-{
-  const Elf64_Sym  *symbol;
-  Elf64_Phdr       *program_header;
-  char             *data;
-
-  symbol = identify_symbol_associated(file, TEST_CONTROLLER);
-  if (symbol == NULL)
-  {
-    close_file(file);
-    personnal_exit(KEY_SYMBOL_NOT_FOUND, file->filename);
-  }
-  printf("We found %s symbol\n", TEST_CONTROLLER);
-  program_header = identify_segment_associated(file, symbol);
-  if (program_header == NULL)
-  {
-    close_file(file);
-    personnal_exit(ASSOCIATED_SEGMENT_MISSING, file->filename);
-  }
-  data = get_mem_emplacement(file, program_header, symbol);
-  if (data == NULL)
-  {
-    close_file(file);
-    personnal_exit(DATA_OFFSET_TOO_LARGE, file->filename);
-  }
-  data[0] = 'J';
-}
-
 const Elf64_Sym  *identify_symbol_associated(const t_file *file, const char *var_name)
 {
   uint16_t    idx;

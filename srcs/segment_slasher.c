@@ -9,15 +9,11 @@ Elf64_Phdr  *identify_segment_associated(const t_file *file, const Elf64_Sym *sy
 {
   uint64_t    st_value;
   Elf64_Phdr  *segment_header;
-  uint32_t    p_type;
 
   st_value = file->endian == LITTLE ? symbol->st_value : SWAP_U64(symbol->st_value);
   segment_header = file->loaded_file + file->sg_table_offset;
   for (uint16_t idx = 0; idx < file->sg_table_total_entry; ++idx)
   {
-    p_type = file->endian == LITTLE ? segment_header->p_type : SWAP_U32(segment_header->p_type);
-    if (p_type != PT_LOAD)
-      continue ;
     if (symbol_is_outside(file->endian, st_value, &segment_header[idx]) == 0)
       return (&segment_header[idx]);
   }

@@ -10,11 +10,13 @@ enum exit_code {
   DATA_OFFSET_TOO_LARGE,
   ERRNO,                       // used
   FILE_TOO_SHORT,              // used
+  INCORRECT_NB_OF_ARGS,        // used
   KEY_SYMBOL_NOT_FOUND,        // used
-  PAYLOAD_SIZE_NOT_FOUND,      // NOT USED
   NOT_A_ELF_FILE,              // used
   NOT_AN_EXEC_FILE,            // used
-  TOO_MANY_ARGS,               // used
+  PAYLOAD_SIZE_NOT_FOUND,      // NOT USED
+  TOO_MANY_ARGS,               // NOT USED
+  UNFIT_REPLACING_VALUE,       // used
   UNSUPPORTED_CPU_ARCH,        // used
   WRONG_ARCH,                  // used
   WRONG_DATA_ENCODING,         // used
