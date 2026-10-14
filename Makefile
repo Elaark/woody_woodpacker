@@ -3,11 +3,13 @@
 #########################
 
 SRC_DIR			=	srcs
+ASM_SRC_DIR		=	stub_srcs
 INC_DIR			=	includes
 
 LIBFT_DIR		= 	libft
 
 BUILD_DIR		=	build
+ASM_OBJ_DIR		=	${BUILD_DIR}/asm_obj
 OBJ_DIR			=	${BUILD_DIR}/obj
 DEP_DIR			=	${BUILD_DIR}/dep
 
@@ -32,7 +34,7 @@ HEADERS			=	main.h 				\
 					segment_slasher.h	\
 					stub.h
 
-STUB_SRCS		=	stub/main.c
+ASM_SRCS		=	main.asm
 
 ###########################
 ######  COMPILATION  ######
@@ -46,6 +48,8 @@ CYAN			=	$(shell tput setaf 6)
 RESET			=	$(shell tput setaf 255)
 
 OBJS			=	${SRCS:%.c=${OBJ_DIR}/%.o}
+ASM_OBJS		=	${ASM_SRCS:%.asm=${ASM_OBJ_DIR}/%.o}
+
 DEPS			=	${SRCS:%.c=${DEP_DIR}/%.d}
 GET_DEP_PATH	=	${@:${OBJ_DIR}/%.o=${DEP_DIR}/.%d}
 
@@ -55,6 +59,9 @@ TEST_NAME		=	resources/sample
 CC				=	clang
 CFLAG			=	-Wall -Werror -Wextra \
 					-MMD -MP -g3
+
+ASM_COMPILER	=	nasm
+ASM_FLAGS		=	-f elf64 -g
 					
 X32_FLAGS		=	-m32
 X64_FLAGS		=	-m64
@@ -71,7 +78,7 @@ STUB_NAME		=	stub
 ######  RULES  ######
 #####################
 
-all: $(LIBFT_LIB) $(NAME) $(STUB_NAME)
+all: $(LIBFT_LIB) $(NAME) compile_stub
 
 -include $(DEPS)
 
@@ -84,8 +91,14 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 		-c $< -o $@ \
 		-MF $(DEP_DIR)/$(notdir $(basename $<)).d -MT $@
 
-$(STUB_NAME): $(STUB_SRCS)
-	$(CC) $(CFLAGS) $^ -o $@
+compile_stub: ${STUB_NAME}
+
+$(STUB_NAME): $(ASM_OBJS)
+	$(CC) $^ -o $@ 
+
+${ASM_OBJ_DIR}/%.o: $(ASM_SRC_DIR)/%.asm
+	$(MKDIR) $(dir $@)
+	${ASM_COMPILER} $(ASM_FLAGS) $< -o $@
 	
 basic:
 	$(CC) $(X64_FLAGS) $(TEST) -o $(TEST_NAME) 
