@@ -20,7 +20,8 @@ SRCS 			=	main.c				\
 					errors.c			\
 					file_handling.c		\
 					section_slasher.c	\
-					segment_slasher.c
+					segment_slasher.c	\
+					stub.c				\
 					
 HEADERS			=	main.h 				\
 					data_controller.h	\
@@ -28,7 +29,10 @@ HEADERS			=	main.h 				\
 					errors.h			\
 					file_handling.h		\
 					section_slasher.h	\
-					segment_slasher.h
+					segment_slasher.h	\
+					stub.h
+
+STUB_SRCS		=	stub/main.c
 
 ###########################
 ######  COMPILATION  ######
@@ -46,7 +50,7 @@ DEPS			=	${SRCS:%.c=${DEP_DIR}/%.d}
 GET_DEP_PATH	=	${@:${OBJ_DIR}/%.o=${DEP_DIR}/.%d}
 
 TEST			=	resources/sample.c
-TEST_NAME		=	sample
+TEST_NAME		=	resources/sample
 
 CC				=	clang
 CFLAG			=	-Wall -Werror -Wextra \
@@ -61,11 +65,13 @@ RM				=	@rm -vrf
 NAME			= 	woody
 LIBFT_LIB		=	libft.a
 
+STUB_NAME		=	stub
+
 #####################
 ######  RULES  ######
 #####################
 
-all: $(LIBFT_LIB) $(NAME)
+all: $(LIBFT_LIB) $(NAME) $(STUB_NAME)
 
 -include $(DEPS)
 
@@ -78,6 +84,9 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 		-c $< -o $@ \
 		-MF $(DEP_DIR)/$(notdir $(basename $<)).d -MT $@
 
+$(STUB_NAME): $(STUB_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@
+	
 basic:
 	$(CC) $(X64_FLAGS) $(TEST) -o $(TEST_NAME) 
 		

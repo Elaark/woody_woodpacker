@@ -38,7 +38,7 @@ int main(int ac, char **av)
   get_the_stub_ready(&host, &stub);
   close_file(&host);
   
-// }
+}
 
 
 // // main for testing protector hability to clean modify data inside a binary
