@@ -14,9 +14,9 @@ _error_exit:
         
 _close_fd:
         mov rdi, rax
-        mov rax, 0x03
+        mov rax, 0x03        ; syscall number 3 for exit
         syscall
-        ret
+        ret                  ; called multipled time
 
 write_intro_message:
         mov rax, 1
@@ -107,12 +107,10 @@ _memfd_create_error:
         jmp _error_exit
 
 _open_error:
-        pop rax
         call _close_fd        ; close memfd_create fd
         jmp _error_exit
 
 _lseek_error:
-        pop rax
         call _close_fd        ; close open fd
         jmp _open_error
 
