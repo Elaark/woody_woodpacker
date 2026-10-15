@@ -36,6 +36,8 @@ HEADERS			=	main.h 				\
 
 ASM_SRCS		=	main.asm
 
+STUB_SRCS		=	stub_srcs/main.c
+
 ###########################
 ######  COMPILATION  ######
 ###########################
@@ -93,8 +95,8 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 
 compile_stub: ${STUB_NAME}
 
-$(STUB_NAME): $(ASM_OBJS)
-	$(CC) -g $^ -o $@ 
+$(STUB_NAME): $(STUB_SRCS)
+	$(CC) $(X64_FLAGS) -g $^ -o $@ 
 
 ${ASM_OBJ_DIR}/%.o: $(ASM_SRC_DIR)/%.asm
 	$(MKDIR) $(dir $@)
