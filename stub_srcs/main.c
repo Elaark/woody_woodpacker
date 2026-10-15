@@ -1,7 +1,7 @@
 #include <unistd.h>
 
-unsigned long  stub_ending;
-int            encryption_key[128];
+unsigned long  stub_ending __attribute__((section(".data"))) = 0;
+int            encryption_key[128] __attribute__((section(".data"))) = {0};
 
 int  main(int argc, char *argv[], char *envp[])
 {
