@@ -94,7 +94,7 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 compile_stub: ${STUB_NAME}
 
 $(STUB_NAME): $(ASM_OBJS)
-	$(CC) $^ -o $@ 
+	$(CC) -g $^ -o $@ 
 
 ${ASM_OBJ_DIR}/%.o: $(ASM_SRC_DIR)/%.asm
 	$(MKDIR) $(dir $@)

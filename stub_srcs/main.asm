@@ -91,6 +91,8 @@ main:
         je _sendfile_error
 
         call write_intro_message
+        pop rax               ; pop host size
+        pop rax               ; pop number return of lseek
         ; execat at the new fd place
        
 _normal_exit:
