@@ -4,6 +4,8 @@ extern _encryption_protocol_
 
 ; MAP_ANONYMOUS        equ        1
 O_RDONLY        equ        0x00
+
+SEEK_CUR        equ        0x01
 SEEK_END        equ        0x02
 
 _error_exit:
@@ -25,7 +27,7 @@ write_intro_message:
         mov rdx, intro_size
         syscall
         ret
-        
+
 main:        
         mov rax, 0x13f        ; syscall number 319 for memfd_create
         mov rdi, filename     ; filename
@@ -33,7 +35,7 @@ main:
         syscall               ; memfd_create
 
         cmp rax, -1
-        je _memfd_create_error
+        jae _memfd_create_error
         
         ; now I have a fd inside memory (step 1) -> must put my host in it (step 2)
 
@@ -47,61 +49,81 @@ main:
         syscall
 
         cmp rax, -1
-        je _open_error
+        jae _open_error
         push rax
         
-        mov rdi, rax
         mov rax, 0x08         ; syscall number 8 for lseek
-        mov rsi, stub_ending  ; where the stub end, value the protector MUST SET
-        xor rdx, rdx          ; just like SEEK_SET
+        mov rdi, [rsp]
+        mov rsi, stub_ending
+        mov rdi, SEEK_CUR     ; advance of stub_ending bytes !
         syscall
-
+        
         cmp rax, -1
-        je _lseek_error
-        push rax              ; save the current offset in the stack
+        jae _lseek_error
+        push rax        ; offset of the end of stub
+        ; Set the fd to the beginning of the host
 
-        mov rax,0x08
-        mov rdi, rsp[1]       ; the fd of the current file
+        mov rax, 0x08
+        mov rdi, [rsp + 8]    ; the fd of the current file
         xor rsi, rsi
         mov rdx, SEEK_END     ; off set is set to the size of file + 0
         syscall
 
         cmp rax, -1
-        je _sendfile_error
+        jae _lseek_other_error
+        ; rax is offset of the end of host
+        ; so size of host is the difference
+        pop rdi
+        sub rax, rdi ; problem: rax is -9 ?
         push rax
+        ; check but rax should be the number of bytes in it...
         
         ; putting fd back to where we want
         mov rax, 0x08
-        mov rdi, rsp[1] 
+        mov rdi, [rsp + 8] 
         xor rsi, rsi
         syscall
 
         cmp rax, -1
-        je _lseek_other_error
+        jae _lseek_other_error
         
-        mov rsi, rsp[1]       ; return of lseek
+        mov rsi, [rsp + 8]    ; return of lseek
         mov rax, 0x28         ; syscall number 40 for sendfile
-        mov rdi, rsp[3]       ; get from stack the new fd, fd_out
-        mov rsi, rsp[2]       ; this must be fd in, 
+        mov rdi, [rsp + 24]   ; get from stack the new fd, fd_out
+        mov rsi, [rsp + 16]   ; this must be fd in, 
         xor rdx, rdx          ; start from the start of the fd -> set by LSEEK
         mov r10, rsp[0]       ; how much bytes is the host -> from LSEEK to SEEK_END
         syscall
 
         cmp rax, -1
-        je _sendfile_error
+        jae _sendfile_error
 
         call write_intro_message
         pop rax               ; pop host size
         pop rax               ; pop number return of lseek
-       
+
+        pop rax
+        call _close_fd        ; fd on beginning of this file can be closed
+
+        ; PUT HERE DECRYPTION ALGORITHM !
+
+        mov rax, 0x142        ; syscall numver 322 for execveat
+        mov rdi, [rsp + 8]    ; fd from memfd_creat, two pops before
+        xor rsi, rsi          ; from execveat man page, NULL here to execve at the fd givent previously
+        xor rdx, rdx          ; no args given
+        xor r10, r10          ; no envp sent
+        xor r8, r8            ; no special flags for execveat
+        syscall
+
+        ; praying it works AKA --- NO RETURN ---
+        
+        
 _normal_exit:
-        pop rax
-        call _close_fd
-        pop rax
+        pop rax               ; CANNOT BE SURE THE STACK IS UNCHANGED
         call _close_fd
 
         mov rax, 0x3c
-        xor rdi, rdi
+        mov rdi, -1
         syscall
         
 _memfd_create_error:
@@ -129,6 +151,6 @@ section .data
 
 section .rodata
         filename        db 'stub', 0x00            ; name of the stub
-        own_path        db '/proc/self', 0x00      ; path to myself to open
+        own_path        db '/proc/self/exe', 0x00  ; path to myself to open
         intro           db '....WOODY.....', 0xA   ; intro message
         intro_size      equ $ - intro

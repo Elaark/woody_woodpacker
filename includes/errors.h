@@ -18,6 +18,7 @@ enum exit_code {
   TOO_MANY_ARGS,               // NOT USED
   UNFIT_REPLACING_VALUE,       // used
   UNSUPPORTED_CPU_ARCH,        // used
+  WRITE_FAILURE,               // used
   WRONG_ARCH,                  // used
   WRONG_DATA_ENCODING,         // used
 };

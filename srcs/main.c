@@ -1,4 +1,4 @@
-// #include "data_controller.h"
+#include "data_controller.h"
 #include "errors.h"
 #include "file_handling.h"
 #include "libft.h"
@@ -21,8 +21,10 @@ int main(int ac, char **av)
   t_file          stub; // the binary that obfuscated the host
   enum exit_code  e;
 
+  if (ac == 1)
+    return (personnal_exit(INCORRECT_NB_OF_ARGS, "(no param)"));
   if (ac != 2)
-    return (personnal_exit(INCORRECT_NB_OF_ARGS, ""));
+    return (personnal_exit(INCORRECT_NB_OF_ARGS, av[1]));
 
   ft_bzero(&host, sizeof(t_file));
   ft_bzero(&stub, sizeof(t_file));
@@ -33,7 +35,7 @@ int main(int ac, char **av)
   if (e != CORRECT)
   {
     close_file(&host);
-    personnal_exit(e, av[1]);
+    personnal_exit(e, host.filename);
   }
   e = open_and_check(&stub);
   if (e != CORRECT)
@@ -49,38 +51,14 @@ int main(int ac, char **av)
     close_file(&stub);
     personnal_exit(e, stub.filename);
   }
-  // join_files(&host, &stub);
+  e = join_files(&host, &stub);
+  if (e != CORRECT)
+  {
+    close_file(&host);
+    close_file(&stub);
+    personnal_exit(e, host.filename);
+  }
+
   close_file(&stub);
-  close_file(&host);
-  
+  close_file(&host); 
 }
-
-
-// // main for testing protector hability to clean modify data inside a binary
-// int  main(int ac, char **av)
-// {
-//   t_file          file;
-//   enum exit_code  e;
-    
-//   if (ac == 1)
-//     return (0);
-//   else if (ac != 4)
-//     return (personnal_exit(INCORRECT_NB_OF_ARGS, av[1]));
-
-//   ft_bzero(&file, sizeof(t_file));
-//   file.filename = av[1];
-//   e = open_and_check(&file);  
-//   if (e != CORRECT)
-//   {
-//     close_file(&file);
-//     personnal_exit(e, av[1]);
-//   }
-//   e = replace_data(&file, av[2], av[3]);
-//   if (e != CORRECT)
-//   {
-//     close_file(&file);
-//     personnal_exit(e, av[1]);
-//   }
-//   close_file(&file);
-//   return (0);
-// }

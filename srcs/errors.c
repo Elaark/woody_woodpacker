@@ -50,6 +50,8 @@ char  *msg_from_error(enum exit_code e)
     return ("New value size does not fit old value size inside memory");
   else if (e == UNSUPPORTED_CPU_ARCH)
     return ("Arch not supported. Only x86 available"); // meh
+  else if (e == WRITE_FAILURE)
+    return ("A write operation has failed. No packed file created"); // meh
   else if (e == WRONG_ARCH || e == WRONG_DATA_ENCODING)
     return ("Error in arch/endian encoding");
   else
