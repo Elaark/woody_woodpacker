@@ -8,7 +8,11 @@
 
 static int open_and_check(t_file *file)
 {
-  open_file(file->filename, file);
+  enum exit_code e;
+  
+  e = open_file(file->filename, file);
+  if (e != CORRECT)
+    return (e);
   check_file_eident(file);
   if (file->arch == X32)
     return (WRONG_ARCH);

@@ -18,7 +18,8 @@ enum exit_code  open_file(const char *file_name, t_file *data)
   if (data->loaded_size == (off_t)-1)
     return (ERRNO);
   lseek(data->fd, 0, SEEK_SET); // Need to make sure to put the offset back to the beginning of the file
-  data->loaded_file = mmap(NULL, data->loaded_size, PROT_READ | PROT_WRITE, MAP_SHARED, data->fd, 0);
+  data->loaded_file = mmap(NULL, data->loaded_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, data->fd, 0);
+  // no need for MAP_SHARED, I don't modify the original files
   if (data->loaded_file == MAP_FAILED)
     return (ERRNO);
   return (CORRECT);
