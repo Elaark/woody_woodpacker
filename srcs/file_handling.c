@@ -80,12 +80,12 @@ enum exit_code  check_file_elf_header_x64(t_file *data)
 
 void  close_file(const t_file *data)
 {
-  if (data->fd != -1)
-    close(data->fd);
   if ((data->loaded_file != NULL ||
        data->loaded_file == MAP_FAILED) &&
       data->loaded_size != 0)
     munmap(data->loaded_file, data->loaded_size);  
+  if (data->fd != -1)
+    close(data->fd);
 }
 
 enum exit_code  verify_exec_and_machine(t_file *data)

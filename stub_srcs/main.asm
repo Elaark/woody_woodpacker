@@ -93,7 +93,6 @@ main:
         call write_intro_message
         pop rax               ; pop host size
         pop rax               ; pop number return of lseek
-        ; execat at the new fd place
        
 _normal_exit:
         pop rax
@@ -124,9 +123,9 @@ _sendfile_error:
         pop rax
         jmp _lseek_error
 
-section .bss
-        encryption_key   resd 128        
-        stub_ending      resq 1
+section .data
+        encryption_key   times 128 dd 0        ; 512 bytes      
+        stub_ending      dq 0x00        ; 8 bytes
 
 section .rodata
         filename        db 'stub', 0x00            ; name of the stub

@@ -69,7 +69,7 @@ X64_FLAGS		=	-m64
 MKDIR			=	@mkdir -vp
 RM				=	@rm -vrf
 
-NAME			= 	woody
+NAME			= 	woodpacker
 LIBFT_LIB		=	libft.a
 
 STUB_NAME		=	stub
@@ -116,6 +116,7 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME)
+	rm -rf $(STUB_NAME)
 	$(MAKE) clean -C $(LIBFT_DIR)
 	
 re: fclean all

@@ -6,7 +6,7 @@
 #include "section_slasher.h"
 #include "segment_slasher.h"
 
-enum exit_code  replace_data(t_file *file, const char *var_name, const char *new_value)
+enum exit_code  replace_data(t_file *file, const char *var_name, const void *new_value, size_t value_size)
 {
   const Elf64_Sym  *symbol;
   enum exit_code   e;
@@ -18,20 +18,17 @@ enum exit_code  replace_data(t_file *file, const char *var_name, const char *new
   if (e != CORRECT)
     return (e);
   // printf("We found %s symbol\n", var_name);
-
-  program_header = NULL;
+  if (value_size != symbol->st_size)
+    return (UNFIT_REPLACING_VALUE);
+  
   program_header = identify_segment_associated(file, symbol);
   if (program_header == NULL)
     return (ASSOCIATED_SEGMENT_MISSING);
 
-  data = NULL;
   data = get_mem_emplacement(file, program_header, symbol);
   if (data == NULL)
     return (DATA_OFFSET_TOO_LARGE);
-  // printf("size of symbol: %lu\n", symbol->st_size);
-  // write(1, new_value, ft_strlen(new_value));
-  if (ft_strlen(new_value) != symbol->st_size)
-    return (UNFIT_REPLACING_VALUE);
-  ft_memcpy(data, new_value, symbol->st_size);
+  
+  ft_memcpy(data, new_value, value_size);
   return (CORRECT);
 }

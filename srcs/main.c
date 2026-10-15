@@ -3,6 +3,7 @@
 #include "file_handling.h"
 #include "libft.h"
 #include "stub.h"
+#include <unistd.h>
 
 
 static int open_and_check(t_file *file)
@@ -21,21 +22,35 @@ int main(int ac, char **av)
   enum exit_code  e;
 
   if (ac != 2)
-    return (personnal_exit(INCORRECT_NB_OF_ARGS, av[1]));
+    return (personnal_exit(INCORRECT_NB_OF_ARGS, ""));
 
   ft_bzero(&host, sizeof(t_file));
   ft_bzero(&stub, sizeof(t_file));
 
   host.filename = av[1];
-  stub.filename = "./stub/stub";
+  stub.filename = "./stub";
   e = open_and_check(&host);
   if (e != CORRECT)
   {
     close_file(&host);
     personnal_exit(e, av[1]);
   }
+  e = open_and_check(&stub);
+  if (e != CORRECT)
+  {
+    close_file(&host);
+    personnal_exit(e, stub.filename);
+  }
   // compression_of_binary(&host);
-  get_the_stub_ready(&host, &stub);
+  e = get_the_stub_ready(&stub, NULL);
+  if (e != CORRECT)
+  {
+    close_file(&host);
+    close_file(&stub);
+    personnal_exit(e, stub.filename);
+  }
+  // join_files(&host, &stub);
+  close_file(&stub);
   close_file(&host);
   
 }
