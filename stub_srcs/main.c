@@ -51,12 +51,17 @@ int  main(int argc, char *argv[], char *envp[])
     return (1);
   }
 
-  stub_end_offset = syscall(0x28, exec_host_fd, self_fd, NULL, host_size);
-  if (stub_end_offset <= -1)
+  stub_end_offset = 0;
+  while (stub_end_offset < host_size)
   {
-    syscall(0x03, exec_host_fd);
-    syscall(0x03, self_fd);
-    return (1);
+    host_end_offset = syscall(0x28, exec_host_fd, self_fd, NULL, host_size - stub_end_offset); //sendfile
+    if (host_end_offset <= 0)
+    {
+      syscall(0x03, exec_host_fd);
+      syscall(0x03, self_fd);
+      return (1);
+    }
+    stub_end_offset += host_end_offset;
   }
   if (syscall(0x03, self_fd) == -1)
   {
@@ -66,7 +71,6 @@ int  main(int argc, char *argv[], char *envp[])
   write(1, "----WOODY-----\n", 15);
   syscall(0x142, exec_host_fd, "", argv, envp, 0x1000); // execveat with flag AT_EMPTY_PATH
 
-  syscall(0x03, exec_host_fd);
-  syscall(0x03, self_fd);
+  syscall(0x03, exec_host_fd); // shoudl not happen
   return (1);
 }
