@@ -36,6 +36,8 @@ char  *msg_from_error(enum exit_code e)
     return ("Error in segment header value. Corruption possible");
   else if (e == FILE_TOO_SHORT)
     return ("File too short. Headers not completed");
+  else if (e == INCOMPATIBLE_ARCH)
+    return ("Mismatch: host and stub must have the same arch");
   else if (e == INCORRECT_NB_OF_ARGS)
     return ("Wrong format. Use -- woody <ELF bin name>");
   else if (e == KEY_SYMBOL_NOT_FOUND)

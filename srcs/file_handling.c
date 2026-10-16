@@ -93,19 +93,18 @@ enum exit_code  verify_exec_and_machine(t_file *data)
 {
   Elf64_Ehdr *header;
   uint16_t   e_type;
-  uint16_t   e_machine;
   
   header = (Elf64_Ehdr *)data->loaded_file;
   e_type = header->e_type;
-  e_machine = header->e_machine;
+  data->machine = header->e_machine;
   if (data->endian == BIG)
   {
     e_type = SWAP_U16(e_type);
-    e_machine = SWAP_U16(e_machine);
+    data->machine = SWAP_U16(data->machine);
   }
   if (e_type != ET_EXEC)
     return (NOT_AN_EXEC_FILE);
-  if (e_machine != EM_386 && e_machine != EM_X86_64)
+  if (data->machine != EM_386 && data->machine != EM_X86_64 && data->machine != EM_AARCH64)
     return (UNSUPPORTED_CPU_ARCH);
   return (CORRECT);
 }

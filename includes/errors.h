@@ -10,6 +10,7 @@ enum exit_code {
   DATA_OFFSET_TOO_LARGE,
   ERRNO,                       // used
   FILE_TOO_SHORT,              // used
+  INCOMPATIBLE_ARCH,           // used
   INCORRECT_NB_OF_ARGS,        // used
   KEY_SYMBOL_NOT_FOUND,        // used
   NOT_A_ELF_FILE,              // used

@@ -23,6 +23,7 @@ typedef struct s_file_data {
   off_t        loaded_size;      // important for the stub !
   endian_type  endian;
   arch_type    arch;             // might pack later x32 bits
+  uint16_t     machine;
 
   off_t        sg_table_offset;  // sg = segment aka program
   uint16_t     sg_table_unit_size;

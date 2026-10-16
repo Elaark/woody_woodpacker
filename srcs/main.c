@@ -47,6 +47,12 @@ int main(int ac, char **av)
     close_file(&host);
     personnal_exit(e, stub.filename);
   }
+  if (host.machine != stub.machine)
+  {
+    close_file(&host);
+    close_file(&stub);
+    personnal_exit(INCOMPATIBLE_ARCH, host.filename);
+  }
   // compression_of_binary(&host);
   e = get_the_stub_ready(&stub, NULL);
   if (e != CORRECT)

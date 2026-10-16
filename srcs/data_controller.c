@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <sys/syscall.h>
 
 #include "data_controller.h"
 #include "errors.h"
@@ -13,8 +14,9 @@ static enum exit_code  close_woody(int fd)
 // function to delete the new fd created in case a write fails
 {
   close(fd);
-  if (syscall(87, "woody") == -1)
+  if (syscall(SYS_unlinkat, AT_FDCWD, "woody", 0) == -1)
     return (ERRNO);
+  // unlinkat over unlink so it can be used by both arm64 and x86_64
   return (WRITE_FAILURE); 
 }
 
