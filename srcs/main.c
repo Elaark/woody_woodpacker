@@ -1,10 +1,16 @@
+#include "bin_compression.h"
 #include "data_controller.h"
 #include "errors.h"
 #include "file_handling.h"
 #include "libft.h"
 #include "stub.h"
-#include <unistd.h>
 
+static void  factor_close(t_file *host, t_file *stub, enum exit_code e)
+{
+    close_file(host);
+    close_file(stub);
+    personnal_exit(e, host->filename);
+}
 
 static int open_and_check(t_file *file)
 {
@@ -48,27 +54,19 @@ int main(int ac, char **av)
     personnal_exit(e, stub.filename);
   }
   if (host.machine != stub.machine)
-  {
-    close_file(&host);
-    close_file(&stub);
-    personnal_exit(INCOMPATIBLE_ARCH, host.filename);
-  }
-  // compression_of_binary(&host);
+    factor_close(&host, &stub, INCOMPATIBLE_ARCH);
+  // e = compress_binary(&host);
+  // if (e != CORRECT)
+  //   factor_close(&host, &stub, ERRNO);
+
+  // add here the encryption protocol, give the key as the NULL pointer here
+  
   e = get_the_stub_ready(&stub, NULL);
   if (e != CORRECT)
-  {
-    close_file(&host);
-    close_file(&stub);
-    personnal_exit(e, stub.filename);
-  }
+    factor_close(&host, &stub, e);
   e = join_files(&host, &stub);
   if (e != CORRECT)
-  {
-    close_file(&host);
-    close_file(&stub);
-    personnal_exit(e, host.filename);
-  }
-
+    factor_close(&host, &stub, e);
   close_file(&stub);
   close_file(&host); 
 }
