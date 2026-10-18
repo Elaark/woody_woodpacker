@@ -116,6 +116,9 @@ clean:
 	$(RM) $(BUILD_DIR)
 	$(MAKE) clean -C $(LIBFT_DIR)
 
+test:
+	$(CC) -Wall -Wextra -Werror -Iincludes/ -g -o compression srcs/bin_compression.c srcs/file_handling.c
+	
 fclean: clean
 	rm -rf $(NAME)
 	rm -rf $(STUB_NAME)
