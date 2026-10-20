@@ -6,12 +6,15 @@ enum exit_code {
   CORRECT,
   CORRUPTED_STRTAB_HEADER,     // used
   CORRUPTED_STRTAB_OFFSET,     // used
-  CORRUPTED_SYMBOL_STRTAB_IDX, //used
+  CORRUPTED_SYMBOL_STRTAB_IDX, // used
   DATA_OFFSET_TOO_LARGE,
   ERRNO,                       // used
   FILE_TOO_SHORT,              // used
   INCOMPATIBLE_ARCH,           // used
   INCORRECT_NB_OF_ARGS,        // used
+  INPUT_SIMILAR_TO_OUTPUT,     // used
+  INVALID_KEY,
+  MISSING_KEY,
   KEY_SYMBOL_NOT_FOUND,        // used
   NOT_A_ELF_FILE,              // used
   NOT_AN_EXEC_FILE,            // used

@@ -37,7 +37,7 @@ typedef struct s_file_data {
 enum exit_code       open_file(const char *file_name, t_file *data);
 enum exit_code       check_file_eident(t_file *data);
 enum exit_code       check_file_elf_header_x64(t_file *data);
-void                 close_file(const t_file *data);
+int                  close_file(const t_file *data);
 
 enum exit_code       verify_exec_and_machine(t_file *data);
 void                 swap_data_info(t_file *data);

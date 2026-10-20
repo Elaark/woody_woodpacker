@@ -3,6 +3,6 @@
 
 # include "file_handling.h"
 
-enum exit_code  get_the_stub_ready(t_file *stub, int *encryption_key);
+enum exit_code  get_the_stub_ready(t_file *stub, const uint8_t key[16], const uint8_t iv[16]);
 
 #endif

@@ -79,14 +79,19 @@ enum exit_code  check_file_elf_header_x64(t_file *data)
   return (CORRECT);
 }
 
-void  close_file(const t_file *data)
+int  close_file(const t_file *data)
 {
+  int return_code;
+
+  return_code = 0;
   if ((data->loaded_file != NULL ||
        data->loaded_file == MAP_FAILED) &&
       data->loaded_size != 0)
-    munmap(data->loaded_file, data->loaded_size);  
+    if (munmap(data->loaded_file, data->loaded_size) == -1)
+      return_code = 1;  
   if (data->fd != -1)
     close(data->fd);
+  return (return_code);
 }
 
 enum exit_code  verify_exec_and_machine(t_file *data)

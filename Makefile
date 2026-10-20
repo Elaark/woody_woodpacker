@@ -74,7 +74,7 @@ X64_FLAGS		=	-m64
 MKDIR			=	@mkdir -vp
 RM				=	@rm -vrf
 
-NAME			= 	woodpacker
+NAME			= 	woody_woodpacker
 LIBFT_LIB		=	libft.a
 
 STUB_NAME		=	stub

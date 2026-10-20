@@ -1,4 +1,5 @@
 #include <elf.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -48,18 +49,8 @@ enum exit_code  replace_data(t_file *file, const char *var_name, const void *new
   return (CORRECT);
 }
 
-enum exit_code  join_files(t_file *host, t_file *stub)
+enum exit_code  join_files(t_file *host, t_file *stub, const uint8_t key[16], const uint8_t iv[16])
 {
-  uint8_t key[16] = {
-    0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-    0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
-  };
-
-  uint8_t iv[16] = {
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-  };
-
   int      woody;
   ssize_t  bytes_written;
   long     total_transfer;
@@ -81,9 +72,17 @@ enum exit_code  join_files(t_file *host, t_file *stub)
   size_t extra_len = 0;
   size_t crypted_host_mem = 0;
 
-  if (encrypt_buffer_inplace(host->loaded_file, host->loaded_size, &extra_block, &extra_len, key, iv) == 0) {
-    crypted_host_mem = host->loaded_size - (host->loaded_size % 16); 
+  errno = 0;
+  if (encrypt_buffer_inplace(host->loaded_file, host->loaded_size, &extra_block, &extra_len, key, iv) != 0) {
+    int encryption_errno = errno != 0 ? errno : EIO;
+
+    free(extra_block);
+    if (close_woody(woody) == ERRNO)
+      return (ERRNO);
+    errno = encryption_errno;
+    return (ERRNO);
   }
+  crypted_host_mem = host->loaded_size - (host->loaded_size % 16);
 
   total_transfer = 0;
   while ((size_t)total_transfer < crypted_host_mem)
@@ -96,7 +95,20 @@ enum exit_code  join_files(t_file *host, t_file *stub)
   }
 
   if (extra_block && extra_len > 0) {
-    write(woody, &extra_block, extra_len);
+    total_transfer = 0;
+    while ((size_t)total_transfer < extra_len)
+    {
+      bytes_written = write(woody, extra_block + total_transfer,
+                            extra_len - (size_t)total_transfer);
+      if (bytes_written == -1 && errno == EINTR)
+        continue;
+      if (bytes_written <= 0)
+      {
+        free(extra_block);
+        return (close_woody(woody));
+      }
+      total_transfer += bytes_written;
+    }
     free(extra_block);
   }
 

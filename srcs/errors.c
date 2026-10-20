@@ -39,7 +39,13 @@ char  *msg_from_error(enum exit_code e)
   else if (e == INCOMPATIBLE_ARCH)
     return ("Mismatch: host and stub must have the same arch");
   else if (e == INCORRECT_NB_OF_ARGS)
-    return ("Wrong format. Use -- woody <ELF bin name>");
+    return ("Wrong format. Use: ./woody_woodpacker [-k <32 hex characters>] <ELF bin name>");
+  else if (e == INVALID_KEY)
+    return ("Invalid AES-128 key: expected exactly 32 hexadecimal characters");
+  else if (e == MISSING_KEY)
+    return ("Missing key after -k: expected 32 hexadecimal characters");
+  else if (e == INPUT_SIMILAR_TO_OUTPUT)
+    return ("Cannot take woody as input since woody is output");
   else if (e == KEY_SYMBOL_NOT_FOUND)
     return ("Cannot replace key variable, symbol not found");
   else if (e == NOT_A_ELF_FILE)
