@@ -18,6 +18,7 @@ DEP_DIR			=	${BUILD_DIR}/dep
 #######################
 
 SRCS 			=	main.c				\
+					../stub_srcs/aes.c	\
 					data_controller.c	\
 					errors.c			\
 					file_handling.c		\
@@ -34,9 +35,11 @@ HEADERS			=	main.h 				\
 					segment_slasher.h	\
 					stub.h
 
-ASM_SRCS		=	main.asm
+ASM_SRCS		=	AESEncrypt.s		\
+					AESDecrypt.s
 
-STUB_SRCS		=	stub_srcs/main.c
+STUB_SRCS		=	stub_srcs/main.c 	\
+					stub_srcs/aes.c
 
 ###########################
 ######  COMPILATION  ######
@@ -50,7 +53,7 @@ CYAN			=	$(shell tput setaf 6)
 RESET			=	$(shell tput setaf 255)
 
 OBJS			=	${SRCS:%.c=${OBJ_DIR}/%.o}
-ASM_OBJS		=	${ASM_SRCS:%.asm=${ASM_OBJ_DIR}/%.o}
+ASM_OBJS		=	${ASM_SRCS:%.s=${ASM_OBJ_DIR}/%.o}
 
 DEPS			=	${SRCS:%.c=${DEP_DIR}/%.d}
 GET_DEP_PATH	=	${@:${OBJ_DIR}/%.o=${DEP_DIR}/.%d}
@@ -84,7 +87,7 @@ all: $(LIBFT_LIB) $(NAME) compile_stub
 
 -include $(DEPS)
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) $(ASM_OBJS)
 	$(CC) $(CFLAG) $^ -o $@ $(LIBFT_DIR)/$(LIBFT_LIB)
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
@@ -95,10 +98,10 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c
 
 compile_stub: ${STUB_NAME}
 
-$(STUB_NAME): $(STUB_SRCS)
+$(STUB_NAME): $(STUB_SRCS) $(ASM_OBJS)
 	$(CC) $(X64_FLAGS) -g $^ -o $@ 
 
-${ASM_OBJ_DIR}/%.o: $(ASM_SRC_DIR)/%.asm
+${ASM_OBJ_DIR}/%.o: $(ASM_SRC_DIR)/%.s
 	$(MKDIR) $(dir $@)
 	${ASM_COMPILER} $(ASM_FLAGS) $< -o $@
 	

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/syscall.h>
 
+#include "aes.h"
 #include "data_controller.h"
 #include "errors.h"
 #include "libft.h"
@@ -49,6 +50,16 @@ enum exit_code  replace_data(t_file *file, const char *var_name, const void *new
 
 enum exit_code  join_files(t_file *host, t_file *stub)
 {
+  uint8_t key[16] = {
+    0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
+    0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
+  };
+
+  uint8_t iv[16] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+  };
+
   int      woody;
   ssize_t  bytes_written;
   long     total_transfer;
@@ -65,15 +76,30 @@ enum exit_code  join_files(t_file *host, t_file *stub)
     else
       total_transfer += bytes_written;
   }
+
+  uint8_t *extra_block = NULL;
+  size_t extra_len = 0;
+  size_t crypted_host_mem = 0;
+
+  if (encrypt_buffer_inplace(host->loaded_file, host->loaded_size, &extra_block, &extra_len, key, iv) == 0) {
+    crypted_host_mem = host->loaded_size - (host->loaded_size % 16); 
+  }
+
   total_transfer = 0;
-  while (total_transfer < host->loaded_size)
+  while ((size_t)total_transfer < crypted_host_mem)
   {
-    bytes_written = write(woody, &((char *)host->loaded_file)[total_transfer], host->loaded_size - total_transfer);
+    bytes_written = write(woody, &((char *)host->loaded_file)[total_transfer], crypted_host_mem - total_transfer);
     if (bytes_written == -1)
       return (close_woody(woody), ERRNO);
     else
       total_transfer += bytes_written;
   }
+
+  if (extra_block && extra_len > 0) {
+    write(woody, &extra_block, extra_len);
+    free(extra_block);
+  }
+
   close(woody);
   return (CORRECT);
 }

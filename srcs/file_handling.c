@@ -11,7 +11,7 @@
 
 enum exit_code  open_file(const char *file_name, t_file *data)
 {
-  data->fd = open(file_name, O_RDWR);
+  data->fd = open(file_name, O_RDONLY);
   if (data->fd == -1)
     return (ERRNO);
   data->loaded_size = lseek(data->fd, 0, SEEK_END); // lseek can move th offset to the end of the file
@@ -102,7 +102,7 @@ enum exit_code  verify_exec_and_machine(t_file *data)
     e_type = SWAP_U16(e_type);
     data->machine = SWAP_U16(data->machine);
   }
-  if (e_type != ET_EXEC)
+  if (e_type != ET_EXEC && e_type != ET_DYN)
     return (NOT_AN_EXEC_FILE);
   if (data->machine != EM_386 && data->machine != EM_X86_64 && data->machine != EM_AARCH64)
     return (UNSUPPORTED_CPU_ARCH);
